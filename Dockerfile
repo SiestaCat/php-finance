@@ -13,4 +13,4 @@ COPY . .
 EXPOSE 8000
 
 # Command to run the PHP built-in server
-CMD ["php", "-S", "0.0.0.0:8000", "index.php"]
+CMD ["php", "-S", "0.0.0.0:8000"]
