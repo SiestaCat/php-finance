@@ -5,7 +5,7 @@
 $year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
 // Connect to SQLite database
-$db = new PDO('sqlite:finance.db');
+$db = new PDO('sqlite:db/finance.db');
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // Calculate monthly balances
