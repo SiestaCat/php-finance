@@ -37,7 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
             }
         }
     }
-    $message = "Entries saved for $month/$year!";
+    
+    // Redirect after saving
+    header("Location: index.php?year=$year&month=$month");
+    exit();
 }
 
 $year = intval($_GET['year']);
@@ -74,9 +77,6 @@ $nextMonth = date('F', strtotime("+1 month", $time));
 <div class="container margin-top">
     <!-- Header -->
     <h1><?php echo $headerText; ?></h1>
-    <?php if(isset($message)): ?>
-        <div class="alert alert-success"><?php echo $message; ?></div>
-    <?php endif; ?>
     
     <!-- Button to view the year report -->
     <div class="margin-bottom">
