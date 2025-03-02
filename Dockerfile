@@ -1,7 +1,7 @@
-FROM php:8.0-cli
+FROM php:8.3-cli
 
-# Install SQLite extension
-RUN docker-php-ext-install pdo pdo_sqlite
+# Update package list and install SQLite development library before installing PDO extensions
+RUN apt-get update && apt-get install -y libsqlite3-dev && docker-php-ext-install pdo pdo_sqlite
 
 # Set the working directory
 WORKDIR /var/www/html
