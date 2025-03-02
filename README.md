@@ -41,7 +41,7 @@ If you want to persist the SQLite database file outside the container, you can u
 
    ```bash
    docker run -p 8000:8000 \
-     -v $(pwd)/finance.db:/var/www/html/finance.db \
+     -v $(pwd)/db/finance.db:/var/www/html/db/finance.db \
      php-finance-app
    ```
 

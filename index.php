@@ -2,7 +2,7 @@
 // index.php
 
 // Connect to SQLite database (file will be created if it doesn’t exist)
-$db = new PDO('sqlite:finance.db');
+$db = new PDO('sqlite:db/finance.db');
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // Create table if not exists
