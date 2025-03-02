@@ -1,0 +1,121 @@
+<?php
+// year.php
+
+// Determine which year to display (defaults to current year)
+$year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
+
+// Connect to SQLite database
+$db = new PDO('sqlite:finance.db');
+$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+// Calculate monthly balances
+$balances = [];
+$totalBalance = 0;
+for ($m = 1; $m <= 12; $m++) {
+    $stmt = $db->prepare("SELECT SUM(amount) as balance FROM finance_entries WHERE year = ? AND month = ?");
+    $stmt->execute([$year, $m]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $balance = $row['balance'] !== null ? $row['balance'] : 0;
+    $balances[$m] = $balance;
+    $totalBalance += $balance;
+}
+
+// Get breakdown data: for each month, group entries by category
+$breakdown = [];
+$stmt = $db->prepare("SELECT month, category, SUM(amount) as total FROM finance_entries WHERE year = ? GROUP BY month, category ORDER BY month");
+$stmt->execute([$year]);
+while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+    $breakdown[] = $row;
+}
+
+$prevYear = $year - 1;
+$nextYear = $year + 1;
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Year <?php echo $year; ?></title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .margin-top { margin-top: 20px; }
+        .margin-bottom { margin-bottom: 20px; }
+        .text-green { color: green; }
+        .text-red { color: red; }
+    </style>
+</head>
+<body>
+<div class="container margin-top">
+    <!-- Year header and navigation buttons -->
+    <h1>Year <?php echo $year; ?></h1>
+    <div class="margin-bottom">
+        <a href="index.php" class="btn btn-success">Go HOME</a>
+        <a href="year.php?year=<?php echo $prevYear; ?>" class="btn btn-secondary">&lt; <?php echo $prevYear; ?></a>
+        <a href="year.php?year=<?php echo $nextYear; ?>" class="btn btn-secondary"><?php echo $nextYear; ?> &gt;</a>
+    </div>
+    
+    <!-- Balances table -->
+    <h3>Balances</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Year</th>
+                <th>Month</th>
+                <th>Balance</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php for($m = 1; $m <= 12; $m++): 
+                $monthName = date('F', mktime(0,0,0,$m, 10));
+                $balance = $balances[$m];
+                $balanceClass = $balance >= 0 ? 'text-green' : 'text-red';
+            ?>
+            <tr>
+                <td><?php echo $year; ?></td>
+                <td><?php echo $monthName; ?></td>
+                <td class="<?php echo $balanceClass; ?>"><?php echo number_format($balance, 2); ?></td>
+                <td>
+                <a href="index.php?year=<?php echo $year ?>&month=<?php echo urlencode($m); ?>" class="btn btn-secondary">View</a>
+                </td>
+            </tr>
+            <?php endfor; ?>
+            <!-- Total row -->
+            <tr>
+                <td></td>
+                <td></td>
+                <td><strong><?php echo number_format($totalBalance, 2); ?></strong></td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <!-- Breakdown table -->
+    <h3>BreakDown</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Category</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if(count($breakdown) > 0): ?>
+                <?php foreach($breakdown as $entry): 
+                    $monthName = date('F', mktime(0,0,0,$entry['month'], 10));
+                ?>
+                <tr>
+                    <td><?php echo $monthName; ?></td>
+                    <td><?php echo htmlspecialchars($entry['category']); ?></td>
+                    <td><?php echo number_format($entry['total'], 2); ?></td>
+                </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr><td colspan="3">No data available.</td></tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
