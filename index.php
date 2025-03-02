@@ -43,8 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     exit();
 }
 
-$year = intval($_GET['year']);
-$month = intval($_GET['month']);
+$year = array_key_exists('year', $_GET) ? intval($_GET['year']) : null;
+$month = array_key_exists('month', $_GET) ? intval($_GET['month']) : null;
 
 // Define current date values
 $currentYear = $year ? $year : date('Y');
