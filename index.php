@@ -60,6 +60,26 @@ $prevMonth_int = date('n', strtotime("-1 month", $time));
 $prevMonth = date('F', strtotime("-1 month", $time));
 $nextMonth_int = date('n', strtotime("+1 month", $time));
 $nextMonth = date('F', strtotime("+1 month", $time));
+
+// Populate entries for current month
+$entries = [];
+$stmt = $db->prepare("SELECT * FROM finance_entries WHERE year = ? AND month = ?");
+$stmt->execute([$currentYear, $currentMonth]);
+while($row = $stmt->fetch(PDO::FETCH_OBJ)){
+    $entries[] = $row;
+}
+
+// Calculate previous month date for fetching its entries
+$prevMonthDate = strtotime("-1 month", $time);
+$prevMonthYear = date('Y', $prevMonthDate);
+$prevMonthInt = date('n', $prevMonthDate);
+
+$prevEntries = [];
+$stmt = $db->prepare("SELECT * FROM finance_entries WHERE year = ? AND month = ?");
+$stmt->execute([$prevMonthYear, $prevMonthInt]);
+while($row = $stmt->fetch(PDO::FETCH_OBJ)){
+    $prevEntries[] = $row;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -118,6 +138,7 @@ $nextMonth = date('F', strtotime("+1 month", $time));
             </tbody>
         </table>
         <button type="button" id="addRow" class="btn btn-info">Add Row</button>
+        <button type="button" id="copyLastMonth" class="btn btn-warning">Copy Last Month</button>
     </form>
 </div>
 
@@ -141,7 +162,7 @@ $(document).ready(function(){
         $(this).closest('tr').remove();
     });
     
-    // Populate table with existing entries from PHP variable
+    // Populate table with existing entries for the current month
     if (entries && entries.length > 0) {
         $("#entriesTable tbody").empty(); // Remove the default row if entries exist
         $.each(entries, function(index, entry) {
@@ -154,17 +175,34 @@ $(document).ready(function(){
             $("#entriesTable tbody").append(row);
         });
     }
+    
+    // Copy previous month's rows into the table when "Copy Last Month" is clicked
+    $("#copyLastMonth").click(function(){
+        if (prevEntries && prevEntries.length > 0) {
+            $("#entriesTable tbody").empty(); // Clear current rows
+            $.each(prevEntries, function(index, entry) {
+                var row = `<tr>
+                    <td><input type="text" name="amount[]" class="form-control" value="${entry.amount}"></td>
+                    <td><input type="text" name="description[]" class="form-control" value="${entry.description}"></td>
+                    <td><input type="text" name="category[]" class="form-control" value="${entry.category}"></td>
+                    <td><button type="button" class="btn btn-danger removeRow">Remove</button></td>
+                </tr>`;
+                $("#entriesTable tbody").append(row);
+            });
+        } else {
+            alert("No entries found from last month.");
+        }
+    });
 });
 
 <?php
-$entries = [];
-$stmt = $db->prepare("SELECT * FROM finance_entries WHERE year = ? AND month = ?");
-$stmt->execute([$currentYear, $currentMonth]);
-while($row = $stmt->fetch(PDO::FETCH_OBJ)){
-    $entries[] = $row;
-}
+// Expose current month entries to JavaScript
 ?>
 var entries = <?php echo json_encode($entries, JSON_PRETTY_PRINT); ?>;
+<?php
+// Expose previous month entries to JavaScript
+?>
+var prevEntries = <?php echo json_encode($prevEntries, JSON_PRETTY_PRINT); ?>;
 </script>
 </body>
 </html>
