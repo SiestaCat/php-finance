@@ -1,5 +1,3 @@
-# filepath: /finance-app/finance-app/Dockerfile
-
 FROM php:8.0-cli
 
 # Install SQLite extension
