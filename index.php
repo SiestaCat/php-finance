@@ -143,6 +143,20 @@ $(document).ready(function(){
     $(document).on('click', '.removeRow', function(){
         $(this).closest('tr').remove();
     });
+    
+    // Populate table with existing entries from PHP variable
+    if (entries && entries.length > 0) {
+        $("#entriesTable tbody").empty(); // Remove the default row if entries exist
+        $.each(entries, function(index, entry) {
+            var row = `<tr>
+                <td><input type="text" name="amount[]" class="form-control" value="${entry.amount}"></td>
+                <td><input type="text" name="description[]" class="form-control" value="${entry.description}"></td>
+                <td><input type="text" name="category[]" class="form-control" value="${entry.category}"></td>
+                <td><button type="button" class="btn btn-danger removeRow">Remove</button></td>
+            </tr>`;
+            $("#entriesTable tbody").append(row);
+        });
+    }
 });
 
 <?php
