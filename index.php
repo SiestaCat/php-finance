@@ -93,9 +93,6 @@ $nextMonth = date('F', strtotime("+1 month", $time));
         <a href="?year=<?php echo $nextYear; ?>&month=<?php echo $currentMonth; ?>" class="btn btn-secondary"><?php echo $nextYear; ?> &gt;</a>
     </div>
     
-    <!-- Placeholder text for balances -->
-    <p>Balance between last month and current, Balance last month</p>
-    
     <!-- Form to add entries -->
     <form id="financeForm" method="post" action="index.php">
         <!-- Hidden inputs for current year and month -->
