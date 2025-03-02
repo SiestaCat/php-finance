@@ -28,6 +28,11 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
     $breakdown[] = $row;
 }
 
+// Get yearly breakdown: for entire year, group entries by category
+$stmt = $db->prepare("SELECT category, SUM(amount) as total FROM finance_entries WHERE year = ? GROUP BY category ORDER BY total DESC");
+$stmt->execute([$year]);
+$yearlyBreakdown = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 $prevYear = $year - 1;
 $nextYear = $year + 1;
 ?>
@@ -77,7 +82,7 @@ $nextYear = $year + 1;
                 <td><?php echo $monthName; ?></td>
                 <td class="<?php echo $balanceClass; ?>"><?php echo number_format($balance, 2); ?></td>
                 <td>
-                <a href="index.php?year=<?php echo $year ?>&month=<?php echo urlencode($m); ?>" class="btn btn-secondary">View</a>
+                    <a href="index.php?year=<?php echo $year ?>&month=<?php echo urlencode($m); ?>" class="btn btn-secondary">View</a>
                 </td>
             </tr>
             <?php endfor; ?>
@@ -86,12 +91,13 @@ $nextYear = $year + 1;
                 <td></td>
                 <td></td>
                 <td><strong><?php echo number_format($totalBalance, 2); ?></strong></td>
+                <td></td>
             </tr>
         </tbody>
     </table>
     
-    <!-- Breakdown table -->
-    <h3>BreakDown</h3>
+    <!-- Breakdown table (per month) -->
+    <h3>Monthly Breakdown</h3>
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -116,6 +122,30 @@ $nextYear = $year + 1;
             <?php endif; ?>
         </tbody>
     </table>
+    
+    <!-- Yearly Breakdown table (aggregated for entire year) -->
+    <h3>Yearly Breakdown by Category</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if(count($yearlyBreakdown) > 0): ?>
+                <?php foreach($yearlyBreakdown as $entry): ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($entry['category']); ?></td>
+                    <td><?php echo number_format($entry['total'], 2); ?></td>
+                </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr><td colspan="2">No data available.</td></tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+    
 </div>
 </body>
 </html>
