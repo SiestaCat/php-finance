@@ -44,6 +44,8 @@ $nextYear = $year + 1;
     <title>Year <?php echo $year; ?></title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .margin-top { margin-top: 20px; }
         .margin-bottom { margin-bottom: 20px; }
@@ -124,6 +126,11 @@ $nextYear = $year + 1;
         </tbody>
     </table>
     
+    <!-- Gráfico con Chart.js -->
+    <div class="margin-bottom">
+        <canvas id="yearlyBreakdownChart"></canvas>
+    </div>
+    
     <!-- Breakdown table (per month) -->
     <h3>Monthly Breakdown</h3>
     <table class="table table-bordered">
@@ -151,8 +158,35 @@ $nextYear = $year + 1;
         </tbody>
     </table>
     
-    
-    
 </div>
+
+<!-- Script para inicializar Chart.js -->
+<script>
+// Preparar los datos desde PHP
+var categories = <?php echo json_encode(array_column($yearlyBreakdown, 'category')); ?>;
+var totals = <?php echo json_encode(array_column($yearlyBreakdown, 'total')); ?>;
+
+var ctx = document.getElementById('yearlyBreakdownChart').getContext('2d');
+var yearlyBreakdownChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: categories,
+        datasets: [{
+            label: 'Total',
+            data: totals,
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
 </body>
 </html>
