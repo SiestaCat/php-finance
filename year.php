@@ -18,6 +18,7 @@ for ($m = 1; $m <= 12; $m++) {
     $balance = $row['balance'] !== null ? $row['balance'] : 0;
     $balances[$m] = $balance;
     $totalBalance += $balance;
+    $monthlyTotalBalances[$m] = $totalBalance;
 }
 
 // Get breakdown data: for each month, group entries by category
@@ -68,6 +69,7 @@ $nextYear = $year + 1;
                 <th>Year</th>
                 <th>Month</th>
                 <th>Balance</th>
+                <th>Total Balance</th>
                 <th></th>
             </tr>
         </thead>
@@ -76,11 +78,14 @@ $nextYear = $year + 1;
                 $monthName = date('F', mktime(0,0,0,$m, 10));
                 $balance = $balances[$m];
                 $balanceClass = $balance >= 0 ? 'text-green' : 'text-red';
+                $monthlyTotalBalance = $monthlyTotalBalances[$m];
+                $monthlyTotalBalanceClass = $monthlyTotalBalance >= 0 ? 'text-green' : 'text-red';
             ?>
             <tr>
                 <td><?php echo $year; ?></td>
                 <td><?php echo $monthName; ?></td>
                 <td class="<?php echo $balanceClass; ?>"><?php echo number_format($balance, 2); ?></td>
+                <td class="<?php echo $monthlyTotalBalanceClass; ?>"><?php echo number_format($monthlyTotalBalance, 2); ?></td>
                 <td>
                     <a href="index.php?year=<?php echo $year ?>&month=<?php echo urlencode($m); ?>" class="btn btn-secondary">View</a>
                 </td>
