@@ -100,6 +100,29 @@ $nextYear = $year + 1;
             </tr>
         </tbody>
     </table>
+
+    <!-- Yearly Breakdown table (aggregated for entire year) -->
+    <h3>Yearly Breakdown by Category</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if(count($yearlyBreakdown) > 0): ?>
+                <?php foreach($yearlyBreakdown as $entry): ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($entry['category']); ?></td>
+                    <td><?php echo number_format($entry['total'], 2); ?></td>
+                </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr><td colspan="2">No data available.</td></tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
     
     <!-- Breakdown table (per month) -->
     <h3>Monthly Breakdown</h3>
@@ -128,28 +151,7 @@ $nextYear = $year + 1;
         </tbody>
     </table>
     
-    <!-- Yearly Breakdown table (aggregated for entire year) -->
-    <h3>Yearly Breakdown by Category</h3>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Category</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if(count($yearlyBreakdown) > 0): ?>
-                <?php foreach($yearlyBreakdown as $entry): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($entry['category']); ?></td>
-                    <td><?php echo number_format($entry['total'], 2); ?></td>
-                </tr>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <tr><td colspan="2">No data available.</td></tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
+    
     
 </div>
 </body>
